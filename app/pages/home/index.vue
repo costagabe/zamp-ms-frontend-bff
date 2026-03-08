@@ -19,6 +19,12 @@ import ExpiringContracts from "./components/ExpiringContracts/index.vue";
 
 definePageMeta({ layout: "default" });
 
+const session = useSupabaseSession();
+
+onMounted(() => {
+  console.log("Supabase JWT token:", session.value?.access_token);
+});
+
 const stats = [
   {
     label: "Imóveis",
