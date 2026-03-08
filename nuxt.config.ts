@@ -3,9 +3,9 @@ export default defineNuxtConfig({
   modules: [
     "@nuxt/content",
     "@nuxt/ui",
-    "@nuxt/hints",
     "@nuxtjs/supabase",
     "@vee-validate/nuxt",
+    "@pinia/nuxt",
   ],
   components: [
     { path: "~/components" },
@@ -15,7 +15,6 @@ export default defineNuxtConfig({
       extensions: ["vue"],
     },
   ],
-  ignore: ["**/pages/**/components/**", "**/pages/**/composables/**"],
   devtools: { enabled: true },
   compatibilityDate: "2024-04-03",
   supabase: {

@@ -1,0 +1,166 @@
+<template>
+  <UCard>
+    <template #header>
+      <div class="space-y-1">
+        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+          {{ title }}
+        </h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          {{ description }}
+        </p>
+      </div>
+    </template>
+
+    <form class="space-y-6" @submit.prevent="onSubmit">
+      <UFormField label="Nome completo" required :error="errors.name">
+        <UInput
+          v-model="name"
+          class="w-full"
+          placeholder="Ex.: Maria da Silva"
+          icon="i-lucide-user"
+          autocomplete="name"
+        />
+      </UFormField>
+
+      <UFormField label="E-mail" required :error="errors.email">
+        <UInput
+          v-model="email"
+          class="w-full"
+          placeholder="email@empresa.com"
+          icon="i-lucide-mail"
+          autocomplete="email"
+        />
+      </UFormField>
+      {{ role }}
+      <UFormField label="Papel" required :error="errors.role">
+        <USelectMenu
+          v-model="role"
+          :items="roleOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="Selecione um papel"
+          class="w-full"
+        />
+      </UFormField>
+
+      <div
+        class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end dark:border-gray-700"
+      >
+        <UButton
+          type="button"
+          variant="outline"
+          color="neutral"
+          :label="cancelLabel"
+          @click="emit('cancel')"
+        />
+        <UButton type="submit" :loading="loading" :label="submitLabel" />
+      </div>
+    </form>
+  </UCard>
+</template>
+
+<script lang="ts" setup>
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
+import type { CreateUserPayload } from "~/types/user";
+import { useRoles } from "~/composables/roles/useRoles";
+
+type UserFormValues = CreateUserPayload;
+
+const toast = useToast();
+
+const props = withDefaults(
+  defineProps<{
+    initialValues?: Partial<UserFormValues> | null;
+    loading?: boolean;
+    submitLabel?: string;
+    cancelLabel?: string;
+    title?: string;
+    description?: string;
+  }>(),
+  {
+    initialValues: null,
+    loading: false,
+    submitLabel: "Salvar",
+    cancelLabel: "Cancelar",
+    title: "Formulário de usuário",
+    description: "Preencha os dados obrigatórios para continuar.",
+  },
+);
+
+const emit = defineEmits<{
+  submit: [payload: UserFormValues];
+  cancel: [];
+}>();
+
+const showError = (message: string) => {
+  toast.add({
+    title: "Erro",
+    description: message,
+    color: "error",
+  });
+};
+
+const showSuccess = (message: string) => {
+  toast.add({
+    title: "Sucesso",
+    description: message,
+    color: "success",
+  });
+};
+
+const { roles } = useRoles();
+
+const roleOptions = computed(() =>
+  roles.value.map((role) => ({
+    label: role.name,
+    value: role.id,
+  })),
+);
+
+const schema = toTypedSchema(
+  z.object({
+    name: z.string().trim().min(3, "Informe pelo menos 3 caracteres"),
+    email: z.string().trim(),
+    role: z.string().uuid("Selecione um papel válido"),
+  }),
+);
+
+const { handleSubmit, errors, defineField, resetForm } =
+  useForm<UserFormValues>({
+    validationSchema: schema,
+    initialValues: {
+      name: props.initialValues?.name ?? "",
+      email: props.initialValues?.email ?? "",
+      role: props.initialValues?.role ?? "",
+    },
+  });
+
+const [name] = defineField("name");
+const [email] = defineField("email");
+const [role] = defineField("role");
+
+watch(
+  () => props.initialValues,
+  (values) => {
+    resetForm({
+      values: {
+        name: values?.name ?? "",
+        email: values?.email ?? "",
+        role: values?.role ?? "",
+      },
+    });
+  },
+  { immediate: true },
+);
+
+const onSubmit = handleSubmit((values) => {
+  emit("submit", values);
+});
+
+defineExpose({
+  showError,
+  showSuccess,
+});
+</script>

@@ -25,6 +25,9 @@
 </template>
 
 <script lang="ts" setup>
+import AppNavbar from "~/components/global/AppNavbar.vue";
+import AppSidebar from "~/components/global/AppSidebar.vue";
+
 const sidebarOpen = ref(false);
 const sidebarCollapsed = ref(false);
 </script>

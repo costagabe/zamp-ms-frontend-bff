@@ -12,10 +12,11 @@
 </template>
 
 <script lang="ts" setup>
-import StatsGrid from "./components/StatsGrid/index.vue";
-import RecentRents from "./components/RecentRents/index.vue";
-import QuickActions from "./components/QuickActions.vue";
-import ExpiringContracts from "./components/ExpiringContracts/index.vue";
+import StatsGrid from "~/components/pages/home/StatsGrid/index.vue";
+import RecentRents from "~/components/pages/home/RecentRents/index.vue";
+import QuickActions from "~/components/pages/home/QuickActions.vue";
+import ExpiringContracts from "~/components/pages/home/ExpiringContracts/index.vue";
+import { useSupabaseSession } from "#imports";
 
 definePageMeta({ layout: "default" });
 
