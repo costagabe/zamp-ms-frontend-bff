@@ -7,6 +7,15 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "@vee-validate/nuxt",
   ],
+  components: [
+    { path: "~/components" },
+    {
+      path: "~/pages/auth/login/components",
+      prefix: "AuthLogin",
+      extensions: ["vue"],
+    },
+  ],
+  ignore: ["**/pages/**/components/**", "**/pages/**/composables/**"],
   devtools: { enabled: true },
   compatibilityDate: "2024-04-03",
   supabase: {
@@ -15,4 +24,5 @@ export default defineNuxtConfig({
       callback: "/auth/login",
     },
   },
+  css: ["~/assets/css/main.css"],
 });
