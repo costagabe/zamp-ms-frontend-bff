@@ -34,13 +34,11 @@
 <script lang="ts" setup>
 import type { CreateUserPayload } from "~/types/user";
 import UserForm from "~/components/pages/users/UserForm.vue";
-import { useUsersService } from "~/composables/users/useUsersService";
-import { useUsersStore } from "~/stores/users";
 
 definePageMeta({ layout: "default" });
 
-const service = useUsersService();
 const store = useUsersStore();
+const { setFlash } = useFlashMessage();
 
 const formRef = ref<InstanceType<typeof UserForm>>();
 const loading = ref(false);
@@ -51,8 +49,12 @@ async function handleCreate(payload: CreateUserPayload) {
   error.value = null;
 
   try {
-    const created = await service.create(payload);
-    store.addUser(created);
+    await store.create(payload);
+    setFlash({
+      title: "Sucesso",
+      description: "Usuário criado com sucesso!",
+      color: "success",
+    });
     await navigateTo("/users");
   } catch (err) {
     const message =

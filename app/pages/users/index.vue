@@ -27,12 +27,13 @@ import { useUsersPage } from "~/composables/users/useUsersPage";
 
 definePageMeta({ layout: "default" });
 
+const { consumeFlash } = useFlashMessage();
+
 const {
   store,
   searchQuery,
   filteredUsers,
   showDeleteModal,
-  loadUsers,
   deleteUser,
   openCreate,
   openEdit,
@@ -40,6 +41,7 @@ const {
 } = useUsersPage();
 
 onMounted(() => {
-  loadUsers();
+  store.fetchAll();
+  consumeFlash();
 });
 </script>

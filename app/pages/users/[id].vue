@@ -43,14 +43,12 @@
 <script lang="ts" setup>
 import type { CreateUserPayload } from "~/types/user";
 import UserForm from "~/components/pages/users/UserForm.vue";
-import { useUsersService } from "~/composables/users/useUsersService";
-import { useUsersStore } from "~/stores/users";
 
 definePageMeta({ layout: "default" });
 
 const route = useRoute();
-const service = useUsersService();
 const store = useUsersStore();
+const { setFlash } = useFlashMessage();
 
 const formRef = ref<InstanceType<typeof UserForm>>();
 const userId = computed(() => String(route.params.id));
@@ -64,7 +62,7 @@ async function loadUser() {
   error.value = null;
 
   try {
-    const user = await service.fetchById(userId.value);
+    const user = await store.fetchById(userId.value);
     formValues.value = {
       name: user.name,
       email: user.email,
@@ -86,8 +84,12 @@ async function handleUpdate(payload: CreateUserPayload) {
   error.value = null;
 
   try {
-    const updated = await service.update(userId.value, payload);
-    store.updateUser(updated);
+    await store.update(userId.value, payload);
+    setFlash({
+      title: "Sucesso",
+      description: "Usuário atualizado com sucesso!",
+      color: "success",
+    });
     await navigateTo("/users");
   } catch (err) {
     const message =
