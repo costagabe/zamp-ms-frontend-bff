@@ -1,14 +1,12 @@
 <template>
-  <div
-    class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
-  >
+  <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-3 border-t border-[var(--ui-border)] pt-4">
     <span class="text-sm text-gray-500 dark:text-gray-400">
       Mostrando {{ rangeStart }}–{{ rangeEnd }} de {{ total }} resultados
     </span>
 
-    <div class="flex items-center gap-3">
+    <div class="grid grid-flow-col auto-cols-max items-center gap-3">
       <!-- Page size selector -->
-      <div class="flex items-center gap-2">
+      <div class="grid grid-flow-col auto-cols-max items-center gap-2">
         <span class="text-sm text-gray-500 dark:text-gray-400"
           >Por página:</span
         >
@@ -29,7 +27,7 @@
       </div>
 
       <!-- Page controls -->
-      <div class="flex items-center gap-1">
+      <div class="grid grid-flow-col auto-cols-max items-center gap-1">
         <UButton
           variant="ghost"
           color="neutral"

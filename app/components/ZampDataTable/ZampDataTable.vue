@@ -1,10 +1,9 @@
 <template>
   <UCard>
-    <!-- Toolbar + Column Visibility -->
     <template #header>
-      <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2 flex-1">
+      <div class="grid grid-cols-1 gap-3">
+        <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+          <div class="grid grid-flow-col auto-cols-max gap-2">
             <slot name="toolbar" />
           </div>
           <ZampDataTableColumnToggle
@@ -86,7 +85,7 @@
     </div>
 
     <!-- Pagination -->
-    <template #footer>
+    <div class="pt-4">
       <ZampDataTablePagination
         :page="tableState.page.value"
         :page-size="tableState.pageSize.value"
@@ -95,7 +94,7 @@
         @update:page="tableState.setPage"
         @update:page-size="tableState.setPageSize"
       />
-    </template>
+    </div>
   </UCard>
 </template>
 
