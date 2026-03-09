@@ -1,5 +1,5 @@
 <template>
-  <UDropdown :items="dropdownItems" :popper="{ placement: 'bottom-end' }">
+  <UDropdownMenu :items="dropdownItems">
     <UButton
       variant="ghost"
       color="neutral"
@@ -7,7 +7,7 @@
       size="xs"
       aria-label="Visibilidade de colunas"
     />
-  </UDropdown>
+  </UDropdownMenu>
 </template>
 
 <script lang="ts" setup>
@@ -22,13 +22,13 @@ const emit = defineEmits<{
   "toggle-column": [key: string];
 }>();
 
-const dropdownItems = computed(() =>
+const dropdownItems = computed(() => [
   props.columns.map((col) => ({
     label: col.label,
     icon: props.hiddenColumns.has(col.key)
       ? "i-lucide-eye-off"
       : "i-lucide-eye",
-    click: () => emit("toggle-column", col.key),
+    onSelect: () => emit("toggle-column", col.key),
   })),
-);
+]);
 </script>

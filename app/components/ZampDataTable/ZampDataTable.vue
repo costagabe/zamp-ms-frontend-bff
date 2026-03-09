@@ -1,9 +1,12 @@
 <template>
-  <UCard>
-    <template #header>
-      <div class="grid grid-cols-1 gap-3">
-        <div class="grid grid-cols-[1fr_auto] items-center gap-3">
-          <div class="grid grid-flow-col auto-cols-max gap-2">
+  <div
+    class="rounded-lg overflow-hidden bg-default divide-y divide-default ring ring-default px-8"
+  >
+    <!-- Header -->
+    <div class="p-4 sm:px-6">
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-1">
             <slot name="toolbar" />
           </div>
           <ZampDataTableColumnToggle
@@ -30,7 +33,7 @@
           @clear-filters="tableState.clearFilters"
         />
       </div>
-    </template>
+    </div>
 
     <!-- Table -->
     <div class="overflow-x-auto">
@@ -85,7 +88,7 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pt-4">
+    <div class="p-4 sm:px-6">
       <ZampDataTablePagination
         :page="tableState.page.value"
         :page-size="tableState.pageSize.value"
@@ -95,7 +98,7 @@
         @update:page-size="tableState.setPageSize"
       />
     </div>
-  </UCard>
+  </div>
 </template>
 
 <script lang="ts" setup generic="T extends Record<string, any>">
@@ -166,7 +169,7 @@ const tableState = (props.state ?? internalState)!;
 // --- Column visibility ---
 const hiddenColumns = ref<Set<string>>(new Set());
 
-// Load from localStorage
+// Load column visibility from localStorage
 onMounted(() => {
   try {
     const stored = localStorage.getItem(`${props.storageKey}:columns`);
@@ -250,13 +253,19 @@ function onBulkAction(action: string) {
   emit("bulk-action", action, [...selectedItems.value]);
 }
 
-// --- Emit fetch on state change ---
+// --- Emit fetch on state change (dedup to prevent double-fire on init) ---
+let lastFetchKey = "";
+
 watch(
   () => tableState.fetchParams.value,
   (params) => {
+    const key = JSON.stringify(params);
+
+    if (key === lastFetchKey) return;
+    lastFetchKey = key;
     selectedItems.value = [];
     emit("fetch", params);
   },
-  { immediate: true, deep: true },
+  { deep: true, immediate: true },
 );
 </script>

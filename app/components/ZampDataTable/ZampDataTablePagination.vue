@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-3 border-t border-[var(--ui-border)] pt-4"
+    class="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center gap-3 border-default pt-4"
   >
     <span class="text-sm text-gray-500 dark:text-gray-400">
       Mostrando {{ rangeStart }}–{{ rangeEnd }} de {{ total }} resultados

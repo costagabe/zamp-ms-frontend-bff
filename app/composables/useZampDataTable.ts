@@ -139,6 +139,15 @@ export function useZampDataTable<T = Record<string, unknown>>(
         for (const [key, value] of Object.entries(params.filters)) {
           query[`filter_${key}`] = value;
         }
+
+        // Skip replace if URL query already matches
+        const current = route.query;
+        const same =
+          Object.keys(query).every(
+            (k) => String(current[k] ?? "") === query[k],
+          ) && Object.keys(current).every((k) => k in query);
+        if (same) return;
+
         router.replace({ query });
       },
       { deep: true },

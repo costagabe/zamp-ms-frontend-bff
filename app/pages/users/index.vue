@@ -60,6 +60,7 @@
 <script lang="ts" setup>
 import DeleteUserModal from "~/components/pages/users/DeleteUserModal.vue";
 import { useUsersPage } from "~/composables/users/useUsersPage";
+import { useUsersService } from "~/composables/users/useUsersService";
 import type {
   ZampDataTableColumn,
   RowAction,
@@ -70,6 +71,7 @@ import type { User } from "~/types/user";
 definePageMeta({ layout: "default" });
 
 const { consumeFlash } = useFlashMessage();
+const service = useUsersService();
 
 const { store, showDeleteModal, deleteUser, openCreate, openEdit, openDelete } =
   useUsersPage();
@@ -83,41 +85,13 @@ const loading = ref(false);
 const error = ref(false);
 
 async function onFetch(params: FetchParams) {
+  console.log("Fetch users with params:", params);
   loading.value = true;
   error.value = false;
   try {
-    await store.fetchAll();
-    // Apply client-side sort/filter/pagination on the store data
-    // (upgrade to server-side when the API supports query params)
-    let result = [...store.users];
-
-    // Filter
-    for (const [key, value] of Object.entries(params.filters)) {
-      const q = value.toLowerCase();
-      result = result.filter((u) =>
-        String((u as any)[key] ?? "")
-          .toLowerCase()
-          .includes(q),
-      );
-    }
-
-    // Sort
-    if (params.sort.field && params.sort.direction) {
-      const { field, direction } = params.sort;
-      result = result.sort((a, b) => {
-        const av = String((a as any)[field] ?? "");
-        const bv = String((b as any)[field] ?? "");
-        return direction === "asc"
-          ? av.localeCompare(bv)
-          : bv.localeCompare(av);
-      });
-    }
-
-    total.value = result.length;
-
-    // Paginate
-    const start = (params.page - 1) * params.pageSize;
-    users.value = result.slice(start, start + params.pageSize);
+    const data = await service.fetchPaginated(params);
+    users.value = data.content;
+    total.value = data.totalElements;
   } catch {
     error.value = true;
   } finally {
