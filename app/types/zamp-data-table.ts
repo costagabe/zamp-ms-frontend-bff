@@ -42,6 +42,18 @@ export interface RowAction<T = Record<string, unknown>> {
   label: string;
   icon: string;
   color?: string;
-  handler: (item: T) => void;
+  handler: (item: T) => void | Promise<void>;
   visible?: (item: T) => boolean;
+  /** Force confirmation dialog before executing */
+  confirm?: boolean;
+  /** Custom confirmation dialog content */
+  confirmTitle?: string;
+  confirmDescription?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  /** Toast messages shown after action execution */
+  successMessage?: string;
+  errorMessage?: string;
+  /** Refresh table data after success when state.refetch is available */
+  refreshOnSuccess?: boolean;
 }

@@ -65,6 +65,7 @@
           :density="density"
           @retry="emit('retry')"
           @toggle-select="toggleSelect"
+          @action-click="onRowActionClick"
         >
           <template #empty>
             <slot name="empty" />
@@ -98,6 +99,43 @@
         @update:page-size="tableState.setPageSize"
       />
     </div>
+
+    <UModal v-model:open="confirmOpen" :prevent-close="!actionLoading">
+      <template #content>
+        <LazyUCard>
+          <template #header>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ pendingAction?.confirmTitle ?? "Confirmar ação" }}
+            </h3>
+          </template>
+
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{
+              pendingAction?.confirmDescription ??
+              "Tem certeza que deseja continuar?"
+            }}
+          </p>
+
+          <template #footer>
+            <div class="flex justify-end gap-3">
+              <UButton
+                variant="outline"
+                color="neutral"
+                :disabled="actionLoading"
+                :label="pendingAction?.cancelLabel ?? 'Cancelar'"
+                @click="confirmOpen = false"
+              />
+              <UButton
+                color="error"
+                :loading="actionLoading"
+                :label="pendingAction?.confirmLabel ?? 'Confirmar'"
+                @click="confirmAndRun"
+              />
+            </div>
+          </template>
+        </LazyUCard>
+      </template>
+    </UModal>
   </div>
 </template>
 
@@ -167,6 +205,13 @@ const internalState = props.state
     } satisfies UseZampDataTableOptions);
 
 const tableState = (props.state ?? internalState)!;
+const toast = useToast();
+
+type RowActionPayload = { action: RowAction<T>; item: T };
+const confirmOpen = ref(false);
+const actionLoading = ref(false);
+const pendingAction = ref<RowAction<T> | null>(null);
+const pendingItem = ref<T | null>(null);
 
 // --- Resolved data (prefer state over props) ---
 const resolvedItems = computed<T[]>(
@@ -269,6 +314,83 @@ function clearSelection() {
 function onBulkAction(action: string) {
   emit("bulk-action", action, [...selectedItems.value]);
 }
+
+function isDestructiveAction(action: RowAction<T>): boolean {
+  if (typeof action.confirm === "boolean") return action.confirm;
+
+  const color = String(action.color ?? "").toLowerCase();
+  const label = action.label.toLowerCase();
+  const destructiveLabels = ["excluir", "remover", "deletar", "delete"];
+
+  return (
+    color === "error" || destructiveLabels.some((word) => label.includes(word))
+  );
+}
+
+async function runAction(action: RowAction<T>, item: T): Promise<void> {
+  actionLoading.value = true;
+  const destructive = isDestructiveAction(action);
+
+  try {
+    await action.handler(item);
+
+    if (destructive || action.successMessage) {
+      toast.add({
+        title: "Sucesso",
+        description: action.successMessage ?? "Ação executada com sucesso.",
+        color: "success",
+      });
+    }
+
+    if (action.refreshOnSuccess && "refetch" in tableState) {
+      const refetch = (tableState as { refetch?: () => Promise<void> | void })
+        .refetch;
+      await refetch?.();
+    }
+  } catch (err) {
+    const fallback = "Não foi possível executar a ação.";
+    const message =
+      action.errorMessage ?? (err instanceof Error ? err.message : fallback);
+
+    toast.add({
+      title: "Erro",
+      description: message,
+      color: "error",
+    });
+  } finally {
+    actionLoading.value = false;
+  }
+}
+
+function onRowActionClick({ action, item }: RowActionPayload): void {
+  if (!isDestructiveAction(action)) {
+    void runAction(action, item);
+    return;
+  }
+
+  pendingAction.value = action;
+  pendingItem.value = item;
+  confirmOpen.value = true;
+}
+
+async function confirmAndRun(): Promise<void> {
+  if (!pendingAction.value || !pendingItem.value) {
+    confirmOpen.value = false;
+    return;
+  }
+
+  await runAction(pendingAction.value, pendingItem.value);
+  confirmOpen.value = false;
+  pendingAction.value = null;
+  pendingItem.value = null;
+}
+
+watch(confirmOpen, (open) => {
+  if (open) return;
+  if (actionLoading.value) return;
+  pendingAction.value = null;
+  pendingItem.value = null;
+});
 
 // --- Emit fetch on state change (dedup to prevent double-fire on init) ---
 let lastFetchKey = "";

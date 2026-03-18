@@ -118,6 +118,25 @@ const tableState = useZampDataTable<T>(columns, options);
 
 ### Quando `state` é passado, `items`/`total`/`loading`/`error` do composable têm prioridade sobre as props correspondentes.
 
+### Fluxo genérico de ações por linha
+
+Quando `actions` é usado, a `ZampDataTable` executa as ações por uma camada centralizada:
+
+- Detecta ações destrutivas e abre modal de confirmação automaticamente.
+- Executa `handler` (sincrono ou assíncrono).
+- Exibe toast de sucesso/erro.
+- Opcionalmente faz refresh da tabela com `state.refetch()`.
+
+Uma ação é considerada destrutiva quando:
+
+- `confirm: true`, ou
+- `color: "error"`, ou
+- `label` contém: `excluir`, `remover`, `deletar`, `delete`.
+
+Observação:
+
+- Se você usar slot `#actions`, você assume o controle total dos botões e do fluxo de execução.
+
 ---
 
 ## Colunas (`ZampDataTableColumn<T>`)
@@ -158,6 +177,54 @@ Slot `#cell-{key}` recebe `{ item: T, value: any }`.
 | `@bulk-action`      | `(action: string, items: T[])` | Emitido ao acionar uma ação em lote                       |
 
 > `@fetch` foi removido. O fetch é gerenciado internamente pelo composable via `useFetch`.
+
+---
+
+## Tipagem de `RowAction<T>`
+
+```ts
+interface RowAction<T = Record<string, unknown>> {
+  label: string;
+  icon: string;
+  color?: string;
+  handler: (item: T) => void | Promise<void>;
+  visible?: (item: T) => boolean;
+
+  // confirmação
+  confirm?: boolean;
+  confirmTitle?: string;
+  confirmDescription?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+
+  // mensagens
+  successMessage?: string;
+  errorMessage?: string;
+
+  // atualiza lista após sucesso (quando state.refetch existir)
+  refreshOnSuccess?: boolean;
+}
+```
+
+Exemplo de ação de exclusão:
+
+```ts
+{
+  label: "Excluir",
+  icon: "i-lucide-trash-2",
+  color: "error",
+  confirm: true,
+  confirmTitle: "Confirmar exclusão",
+  confirmDescription: "Tem certeza que deseja excluir este registro?",
+  confirmLabel: "Excluir",
+  successMessage: "Registro excluído com sucesso!",
+  errorMessage: "Não foi possível excluir o registro.",
+  refreshOnSuccess: true,
+  handler: async (item) => {
+    await $fetch(`/api/resource/${item.id}`, { method: "DELETE" as any });
+  }
+}
+```
 
 ---
 

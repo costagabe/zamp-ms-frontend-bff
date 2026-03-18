@@ -43,18 +43,10 @@
         <span v-else class="text-gray-400 text-xs">—</span>
       </template>
     </ZampDataTable>
-
-    <DeleteUserModal
-      v-model="showDeleteModal"
-      :user="store.selectedUser"
-      :loading="store.loading"
-      @confirm="() => deleteUser(store.selectedUser!.id)"
-    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import DeleteUserModal from "~/components/pages/users/DeleteUserModal.vue";
 import { useUsersPage } from "~/composables/users/useUsersPage";
 import { useZampDataTable } from "~/composables/useZampDataTable";
 import type { ZampDataTableColumn, RowAction } from "~/types/zamp-data-table";
@@ -64,8 +56,7 @@ definePageMeta({ layout: "default" });
 
 const { consumeFlash } = useFlashMessage();
 
-const { store, showDeleteModal, deleteUser, openCreate, openEdit, openDelete } =
-  useUsersPage();
+const { store, openCreate, openEdit } = useUsersPage();
 
 onMounted(() => consumeFlash());
 
@@ -109,7 +100,17 @@ const rowActions: RowAction<User>[] = [
     label: "Excluir",
     icon: "i-lucide-trash-2",
     color: "error",
-    handler: (user) => openDelete(user),
+    confirm: true,
+    confirmTitle: "Confirmar exclusão",
+    confirmDescription:
+      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.",
+    confirmLabel: "Excluir",
+    successMessage: "Usuário excluído com sucesso!",
+    errorMessage: "Não foi possível excluir o usuário.",
+    refreshOnSuccess: true,
+    handler: async (user) => {
+      await store.remove(user.id);
+    },
   },
 ];
 </script>

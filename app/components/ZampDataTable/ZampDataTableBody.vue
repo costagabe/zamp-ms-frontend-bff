@@ -153,7 +153,7 @@
                   :icon="action.icon"
                   size="xs"
                   :aria-label="action.label"
-                  @click="action.handler(item)"
+                  @click="emit('action-click', { action, item })"
                 />
               </template>
             </div>
@@ -188,6 +188,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   retry: [];
   "toggle-select": [item: T];
+  "action-click": [payload: { action: RowAction<T>; item: T }];
 }>();
 
 defineSlots<{

@@ -90,7 +90,19 @@ const rowActions: RowAction<Company>[] = [
     label: "Excluir",
     icon: "i-lucide-trash-2",
     color: "error",
-    handler: (company) => openDelete(company),
+    confirm: true,
+    confirmTitle: "Confirmar exclusão",
+    confirmDescription:
+      "Tem certeza que deseja excluir esta empresa? Esta ação não pode ser desfeita.",
+    confirmLabel: "Excluir",
+    successMessage: "Empresa excluída com sucesso!",
+    errorMessage: "Não foi possível excluir a empresa.",
+    refreshOnSuccess: true,
+    handler: async (company) => {
+      await $fetch(`/api/companies/${company.id}`, {
+        method: "DELETE" as any,
+      });
+    },
   },
 ];
 
@@ -100,11 +112,6 @@ function openCreate(): void {
 
 function openEdit(company: Company): void {
   router.push(`/companies/${company.id}`);
-}
-
-function openDelete(company: Company): void {
-  // TODO: Implementar modal de delete
-  console.log("Delete:", company.id);
 }
 
 function formatCNPJ(cnpj: string): string {
