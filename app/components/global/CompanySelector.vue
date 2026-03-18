@@ -10,23 +10,25 @@
 </template>
 
 <script lang="ts" setup>
-interface Company {
-  id: string;
-  name: string;
-  cnpj: string;
-}
+import type { Company } from "~/types/company";
 
 const { data } = await useFetch<Company[]>("/api/companies/my");
+const companyStore = useCompanyStore();
 
 const items = computed(() => data.value ?? []);
 
-const selectedId = ref<string | undefined>(
-  items.value.length ? items.value[0]!.id : undefined,
-);
-
-watch(items, (list) => {
-  if (list.length && !selectedId.value) {
-    selectedId.value = list[0]!.id;
-  }
+const selectedId = computed<string | undefined>({
+  get: () => companyStore.currentCompany ?? undefined,
+  set: (id) => {
+    companyStore.setCurrentCompany(id ?? null);
+  },
 });
+
+watch(
+  data,
+  (list) => {
+    companyStore.syncCurrentCompany(list);
+  },
+  { immediate: true },
+);
 </script>
