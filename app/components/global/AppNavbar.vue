@@ -26,7 +26,9 @@
 
     <!-- Right -->
     <div class="flex items-center gap-2">
-      <span class="hidden lg:inline text-sm text-gray-600 dark:text-gray-300 mr-1">
+      <span
+        class="hidden lg:inline text-sm text-gray-600 dark:text-gray-300 mr-1"
+      >
         Bem-vindo, {{ welcomeName }}
       </span>
 
