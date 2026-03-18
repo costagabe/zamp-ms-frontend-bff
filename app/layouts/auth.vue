@@ -5,3 +5,17 @@
     <slot />
   </div>
 </template>
+
+<script lang="ts" setup>
+const route = useRoute();
+const APP_NAME = "Zamp";
+
+useHead(
+  computed(() => {
+    const pageTitle = route.meta?.title as string | undefined;
+    return {
+      title: pageTitle ? `${pageTitle} | ${APP_NAME}` : APP_NAME,
+    };
+  }),
+);
+</script>

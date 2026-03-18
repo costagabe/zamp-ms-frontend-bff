@@ -30,4 +30,16 @@ import AppSidebar from "~/components/global/AppSidebar.vue";
 
 const sidebarOpen = ref(false);
 const sidebarCollapsed = ref(false);
+
+const route = useRoute();
+const APP_NAME = "Zamp";
+
+useHead(
+  computed(() => {
+    const pageTitle = route.meta?.title as string | undefined;
+    return {
+      title: pageTitle ? `${pageTitle} | ${APP_NAME}` : APP_NAME,
+    };
+  }),
+);
 </script>
