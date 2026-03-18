@@ -20,13 +20,7 @@
       </h1>
 
       <div class="hidden md:block ml-6">
-        <USelect
-          v-model="selectedCompany"
-          :options="companies"
-          option-attribute="name"
-          size="sm"
-          placeholder="Selecione uma empresa"
-        />
+        <CompanySelector />
       </div>
     </div>
 
@@ -62,21 +56,12 @@
 </template>
 
 <script lang="ts" setup>
+import CompanySelector from "./CompanySelector.vue";
+
 const emit = defineEmits<{ "toggle-sidebar": [] }>();
 
 const route = useRoute();
 const colorMode = useColorMode();
-
-const selectedCompany = ref<any>(null);
-
-const companies = ref([
-  { id: 2, name: "Zamp Comercial" },
-  { id: 3, name: "Zamp Residencial" },
-]);
-
-onMounted(() => {
-  selectedCompany.value = companies.value[0];
-});
 
 const pageTitles: Record<string, string> = {
   "/home": "Dashboard",

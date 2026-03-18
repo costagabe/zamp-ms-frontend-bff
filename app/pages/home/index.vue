@@ -97,9 +97,13 @@ const recentRents = [
 ];
 
 const quickActions = [
-  { label: "Novo imóvel", icon: "i-lucide-plus", to: "/buildings/new" },
-  { label: "Novo cliente", icon: "i-lucide-user-plus", to: "/clients/new" },
-  { label: "Novo contrato", icon: "i-lucide-file-plus", to: "/contracts/new" },
+  { label: "Novo imóvel", icon: "i-lucide-plus", to: "/buildings/create" },
+  { label: "Novo cliente", icon: "i-lucide-user-plus", to: "/clients/create" },
+  {
+    label: "Novo contrato",
+    icon: "i-lucide-file-plus",
+    to: "/contracts/create",
+  },
   { label: "Registrar pagamento", icon: "i-lucide-credit-card", to: "/rents" },
 ];
 

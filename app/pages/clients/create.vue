@@ -1,9 +1,9 @@
 <template>
-  <div></div>
+  <div>
+    <h1>Novo Cliente</h1>
+  </div>
 </template>
 
 <script lang="ts" setup>
 definePageMeta({ layout: "default" });
-
-navigateTo("/home");
 </script>
