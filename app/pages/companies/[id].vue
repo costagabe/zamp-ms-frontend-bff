@@ -44,7 +44,7 @@
 import CompanyForm from "~/components/pages/companies/CompanyForm.vue";
 import type { CreateCompanyPayload, Company } from "~/types/company";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Editar empresa" });
 
 const route = useRoute();
 const { setFlash } = useFlashMessage();

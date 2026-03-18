@@ -35,7 +35,7 @@
 import type { CreateUserPayload } from "~/types/user";
 import UserForm from "~/components/pages/users/UserForm.vue";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Novo usuário" });
 
 const store = useUsersStore();
 const { setFlash } = useFlashMessage();

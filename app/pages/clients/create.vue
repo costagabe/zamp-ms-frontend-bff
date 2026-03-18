@@ -5,5 +5,5 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Novo cliente" });
 </script>

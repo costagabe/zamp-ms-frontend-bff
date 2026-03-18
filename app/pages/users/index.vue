@@ -52,7 +52,7 @@ import { useZampDataTable } from "~/composables/useZampDataTable";
 import type { ZampDataTableColumn, RowAction } from "~/types/zamp-data-table";
 import type { User } from "~/types/user";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Usuários" });
 
 const { consumeFlash } = useFlashMessage();
 

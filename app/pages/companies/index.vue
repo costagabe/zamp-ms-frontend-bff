@@ -45,7 +45,7 @@ interface Company {
   cnpj: string;
 }
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Empresas" });
 
 const router = useRouter();
 const { consumeFlash } = useFlashMessage();

@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Início" });
 
 navigateTo("/home");
 </script>

@@ -34,7 +34,7 @@
 import CompanyForm from "~/components/pages/companies/CompanyForm.vue";
 import type { CreateCompanyPayload } from "~/types/company";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Nova empresa" });
 
 const { setFlash } = useFlashMessage();
 

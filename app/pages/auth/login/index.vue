@@ -15,5 +15,5 @@
 import Branding from "./components/Branding.vue";
 import CardHeader from "./components/CardHeader.vue";
 import LoginForm from "./components/Form/index.vue";
-definePageMeta({ layout: "auth" });
+definePageMeta({ layout: "auth", title: "Login" });
 </script>

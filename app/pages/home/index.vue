@@ -18,7 +18,7 @@ import QuickActions from "~/components/pages/home/QuickActions.vue";
 import ExpiringContracts from "~/components/pages/home/ExpiringContracts/index.vue";
 import { useSupabaseSession } from "#imports";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Dashboard" });
 
 const session = useSupabaseSession();
 

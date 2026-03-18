@@ -44,7 +44,7 @@
 import type { CreateUserPayload, User } from "~/types/user";
 import UserForm from "~/components/pages/users/UserForm.vue";
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: "default", title: "Editar usuário" });
 
 const route = useRoute();
 const store = useUsersStore();
