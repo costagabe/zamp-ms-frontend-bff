@@ -93,6 +93,7 @@ const menuItems = [
   { label: "Imóveis", icon: "i-lucide-building-2", to: "/buildings" },
   { label: "Clientes", icon: "i-lucide-users", to: "/clients" },
   { label: "Usuários", icon: "i-lucide-user-check", to: "/users" },
+  { label: "Empresas", icon: "i-lucide-briefcase", to: "/companies" },
   { label: "Contratos", icon: "i-lucide-file-text", to: "/contracts" },
   { label: "Aluguéis", icon: "i-lucide-wallet", to: "/rents" },
   { label: "Financeiro", icon: "i-lucide-bar-chart-3", to: "/financial" },

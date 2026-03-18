@@ -172,9 +172,13 @@ export function useZampDataTable<T = Record<string, unknown>>(
     return q;
   });
 
-  const { data: fetchData, status: fetchStatus } = options.fetchUrl
+  const {
+    data: fetchData,
+    status: fetchStatus,
+    refresh: refetch,
+  } = options.fetchUrl
     ? useFetch<PageResponse<T>>(options.fetchUrl, { query: queryParams })
-    : { data: ref(null), status: ref("idle") };
+    : { data: ref(null), status: ref("idle"), refresh: () => {} };
 
   const items = computed<T[]>(() => fetchData.value?.content ?? []);
   const total = computed<number>(() => fetchData.value?.totalElements ?? 0);
@@ -199,5 +203,6 @@ export function useZampDataTable<T = Record<string, unknown>>(
     total,
     loading,
     error,
+    refetch,
   };
 }

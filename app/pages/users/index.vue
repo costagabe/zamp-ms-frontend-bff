@@ -94,7 +94,7 @@ const tableState = useZampDataTable<User>(columns, {
 });
 
 function onRetry(): void {
-  tableState.setPage(tableState.page.value);
+  tableState.refetch();
 }
 
 // --- Row actions ---
