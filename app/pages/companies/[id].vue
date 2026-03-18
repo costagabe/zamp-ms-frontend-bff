@@ -69,17 +69,6 @@ async function handleUpdate(payload: CreateCompanyPayload): Promise<void> {
   saving.value = true;
 
   try {
-    await $fetch(`/api/companies/${companyId}`, {
-      method: "PUT",
-      body: payload,
-    });
-
-    setFlash({
-      title: "Sucesso",
-      description: "Empresa atualizada com sucesso!",
-      color: "success",
-    });
-
     await navigateTo("/companies");
   } catch (err) {
     const message =

@@ -69,7 +69,10 @@
     </nav>
 
     <!-- Footer -->
-    <div class="border-t border-gray-200 dark:border-gray-700 p-3">
+    <div
+      v-if="showSettings"
+      class="border-t border-gray-200 dark:border-gray-700 p-3"
+    >
       <NuxtLink
         to="/settings"
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
@@ -88,18 +91,40 @@ const emit = defineEmits<{ close: []; "toggle-collapse": [] }>();
 
 const route = useRoute();
 
-const menuItems = [
+interface SidebarItem {
+  label: string;
+  icon: string;
+  to: string;
+}
+
+interface SidebarNavigationResponse {
+  roles: string[];
+  menuItems: SidebarItem[];
+  showSettings: boolean;
+}
+
+const fallbackMenuItems: SidebarItem[] = [
   { label: "Dashboard", icon: "i-lucide-layout-dashboard", to: "/" },
   { label: "Imóveis", icon: "i-lucide-building-2", to: "/buildings" },
   { label: "Clientes", icon: "i-lucide-users", to: "/clients" },
-  { label: "Usuários", icon: "i-lucide-user-check", to: "/users" },
-  { label: "Empresas", icon: "i-lucide-briefcase", to: "/companies" },
   { label: "Contratos", icon: "i-lucide-file-text", to: "/contracts" },
   { label: "Aluguéis", icon: "i-lucide-wallet", to: "/rents" },
   { label: "Financeiro", icon: "i-lucide-bar-chart-3", to: "/financial" },
   { label: "Visitas", icon: "i-lucide-calendar", to: "/visits" },
   { label: "Manutenções", icon: "i-lucide-wrench", to: "/maintenance" },
 ];
+
+const { data: navigationData } = await useFetch<SidebarNavigationResponse>(
+  "/api/navigation/sidebar",
+);
+
+const menuItems = computed<SidebarItem[]>(
+  () => navigationData.value?.menuItems ?? fallbackMenuItems,
+);
+
+const showSettings = computed<boolean>(
+  () => navigationData.value?.showSettings ?? false,
+);
 
 function isActive(to: string) {
   if (to === "/") return route.path === "/";

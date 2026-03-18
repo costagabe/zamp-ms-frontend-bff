@@ -26,6 +26,10 @@
 
     <!-- Right -->
     <div class="flex items-center gap-2">
+      <span class="hidden lg:inline text-sm text-gray-600 dark:text-gray-300 mr-1">
+        Bem-vindo, {{ welcomeName }}
+      </span>
+
       <UButton variant="ghost" color="neutral" icon="i-lucide-bell" size="sm" />
 
       <ClientOnly>
@@ -57,11 +61,28 @@
 
 <script lang="ts" setup>
 import CompanySelector from "./CompanySelector.vue";
+import type { User } from "~/types/user";
 
 const emit = defineEmits<{ "toggle-sidebar": [] }>();
 
 const route = useRoute();
 const colorMode = useColorMode();
+const authUser = useSupabaseUser();
+
+const { data: loggedUser } = await useFetch<User>("/api/users/me");
+
+const welcomeName = computed(() => {
+  const name = loggedUser.value?.name?.trim();
+  if (name) return name;
+
+  const email = authUser.value?.email?.trim();
+  if (email) {
+    const localPart = email.split("@")[0];
+    return localPart || email;
+  }
+
+  return "Usuário";
+});
 
 const pageTitles: Record<string, string> = {
   "/home": "Dashboard",
