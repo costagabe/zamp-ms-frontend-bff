@@ -11,7 +11,7 @@
 
     <form @submit.prevent="handleLogin" class="space-y-5">
       <FormFields
-        v-model:email="form.email"
+        v-model:email.trim="form.email"
         v-model:password="form.password"
         :show-password="showPassword"
         @toggle-password="showPassword = !showPassword"

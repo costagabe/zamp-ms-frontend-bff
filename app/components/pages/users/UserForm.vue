@@ -24,14 +24,13 @@
 
       <UFormField label="E-mail" required :error="errors.email">
         <UInput
-          v-model="email"
+          v-model.trim="email"
           class="w-full"
           placeholder="email@empresa.com"
           icon="i-lucide-mail"
           autocomplete="email"
         />
       </UFormField>
-      {{ role }}
       <UFormField label="Papel" required :error="errors.role">
         <USelectMenu
           v-model="role"
@@ -40,6 +39,18 @@
           label-key="label"
           placeholder="Selecione um papel"
           class="w-full"
+        />
+      </UFormField>
+
+      <UFormField label="Empresas" required :error="errors.companies">
+        <USelectMenu
+          v-model="companies"
+          :items="companyOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="Selecione as empresas"
+          class="w-full"
+          multiple
         />
       </UFormField>
 
@@ -119,11 +130,29 @@ const roleOptions = computed(() =>
   })),
 );
 
+interface Company {
+  id: string;
+  name: string;
+  cnpj: string;
+}
+
+const { data: companiesData } = await useFetch<Company[]>("/api/companies/my");
+
+const companyOptions = computed(() =>
+  (companiesData.value ?? []).map((c) => ({
+    label: c.name,
+    value: c.id,
+  })),
+);
+
 const schema = toTypedSchema(
   z.object({
     name: z.string().trim().min(3, "Informe pelo menos 3 caracteres"),
     email: z.string().trim(),
     role: z.string().uuid("Selecione um papel válido"),
+    companies: z
+      .array(z.string().uuid())
+      .min(1, "Selecione ao menos uma empresa"),
   }),
 );
 
@@ -134,12 +163,14 @@ const { handleSubmit, errors, defineField, resetForm } =
       name: props.initialValues?.name ?? "",
       email: props.initialValues?.email ?? "",
       role: props.initialValues?.role ?? "",
+      companies: props.initialValues?.companies ?? [],
     },
   });
 
 const [name] = defineField("name");
 const [email] = defineField("email");
 const [role] = defineField("role");
+const [companies] = defineField("companies");
 
 watch(
   () => props.initialValues,
@@ -149,6 +180,7 @@ watch(
         name: values?.name ?? "",
         email: values?.email ?? "",
         role: values?.role ?? "",
+        companies: values?.companies ?? [],
       },
     });
   },

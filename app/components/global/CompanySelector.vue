@@ -7,7 +7,6 @@
     size="sm"
     placeholder="Selecione uma empresa"
   />
-  {{ items }}
 </template>
 
 <script lang="ts" setup>

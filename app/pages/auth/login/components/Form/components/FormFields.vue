@@ -2,7 +2,7 @@
   <div class="space-y-5">
     <UFormField label="E-mail" name="email" required>
       <UInput
-        v-model="email"
+        v-model.trim="email"
         type="email"
         placeholder="seu@email.com"
         icon="i-lucide-mail"

@@ -26,6 +26,7 @@ export interface CreateUserPayload {
   name: string;
   email: string;
   role: string; // UUID da role vindo do BFF
+  companies: string[]; // UUIDs das empresas vinculadas
 }
 
 export interface UpdateUserPayload {
@@ -33,4 +34,5 @@ export interface UpdateUserPayload {
   email?: string;
   role?: string; // UUID da role vindo do BFF
   situation?: UserSituation;
+  companies?: string[];
 }

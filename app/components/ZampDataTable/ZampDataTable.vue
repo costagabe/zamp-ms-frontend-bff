@@ -52,10 +52,10 @@
           @toggle-all="toggleAll"
         />
         <ZampDataTableBody
-          :items="items"
+          :items="resolvedItems"
           :visible-columns="visibleColumns"
-          :loading="loading"
-          :error="error"
+          :loading="resolvedLoading"
+          :error="resolvedError"
           :empty-message="emptyMessage"
           :page-size="tableState.pageSize.value"
           :selectable="selectable"
@@ -92,7 +92,7 @@
       <ZampDataTablePagination
         :page="tableState.page.value"
         :page-size="tableState.pageSize.value"
-        :total="total"
+        :total="resolvedTotal"
         :page-size-options="tableState.pageSizeOptions"
         @update:page="tableState.setPage"
         @update:page-size="tableState.setPageSize"
@@ -123,8 +123,8 @@ import ZampDataTableColumnToggle from "./ZampDataTableColumnToggle.vue";
 const props = withDefaults(
   defineProps<{
     columns: ZampDataTableColumn<T>[];
-    items: T[];
-    total: number;
+    items?: T[];
+    total?: number;
     loading?: boolean;
     error?: boolean | string;
     emptyMessage?: string;
@@ -138,6 +138,8 @@ const props = withDefaults(
     state?: ReturnType<typeof useZampDataTable<T>>;
   }>(),
   {
+    items: undefined,
+    total: undefined,
     loading: false,
     error: false,
     emptyMessage: "Nenhum resultado encontrado.",
@@ -165,6 +167,20 @@ const internalState = props.state
     } satisfies UseZampDataTableOptions);
 
 const tableState = (props.state ?? internalState)!;
+
+// --- Resolved data (prefer state over props) ---
+const resolvedItems = computed<T[]>(
+  () => props.items ?? tableState.items.value,
+);
+const resolvedTotal = computed<number>(
+  () => props.total ?? tableState.total.value,
+);
+const resolvedLoading = computed<boolean>(
+  () => props.loading || tableState.loading.value,
+);
+const resolvedError = computed<boolean | string>(
+  () => props.error || tableState.error.value,
+);
 
 // --- Column visibility ---
 const hiddenColumns = ref<Set<string>>(new Set());
@@ -216,13 +232,14 @@ const selectedItems = ref<T[]>([]) as Ref<T[]>;
 
 const allSelected = computed(
   () =>
-    props.items.length > 0 && selectedItems.value.length === props.items.length,
+    resolvedItems.value.length > 0 &&
+    selectedItems.value.length === resolvedItems.value.length,
 );
 
 const indeterminate = computed(
   () =>
     selectedItems.value.length > 0 &&
-    selectedItems.value.length < props.items.length,
+    selectedItems.value.length < resolvedItems.value.length,
 );
 
 function toggleSelect(item: T) {
@@ -239,7 +256,7 @@ function toggleAll() {
   if (allSelected.value) {
     selectedItems.value = [];
   } else {
-    selectedItems.value = [...props.items];
+    selectedItems.value = [...resolvedItems.value];
   }
   emit("selection-change", [...selectedItems.value]);
 }

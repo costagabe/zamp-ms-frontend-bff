@@ -1,10 +1,11 @@
-import { ref, computed, watch, type Ref } from "vue";
+import { ref, computed, watch, toValue, type Ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type {
   SortState,
   FetchParams,
   ZampDataTableColumn,
 } from "~/types/zamp-data-table";
+import type { PageResponse } from "~/types/common";
 
 export interface UseZampDataTableOptions {
   defaultPage?: number;
@@ -12,6 +13,7 @@ export interface UseZampDataTableOptions {
   defaultSort?: SortState;
   pageSizeOptions?: number[];
   syncWithUrl?: boolean;
+  fetchUrl?: string;
 }
 
 export function useZampDataTable<T = Record<string, unknown>>(
@@ -154,6 +156,31 @@ export function useZampDataTable<T = Record<string, unknown>>(
     );
   }
 
+  // --- Data fetching (when fetchUrl is provided) ---
+  const queryParams = computed(() => {
+    const q: Record<string, string> = {
+      page: String(page.value),
+      pageSize: String(pageSize.value),
+    };
+    if (sort.value.field && sort.value.direction) {
+      q.sortField = sort.value.field;
+      q.sortDir = sort.value.direction;
+    }
+    for (const [key, value] of Object.entries(filters.value)) {
+      if (value) q[`filter_${key}`] = value;
+    }
+    return q;
+  });
+
+  const { data: fetchData, status: fetchStatus } = options.fetchUrl
+    ? useFetch<PageResponse<T>>(options.fetchUrl, { query: queryParams })
+    : { data: ref(null), status: ref("idle") };
+
+  const items = computed<T[]>(() => fetchData.value?.content ?? []);
+  const total = computed<number>(() => fetchData.value?.totalElements ?? 0);
+  const loading = computed(() => fetchStatus.value === "pending");
+  const error = computed(() => fetchStatus.value === "error");
+
   return {
     page,
     pageSize,
@@ -168,5 +195,9 @@ export function useZampDataTable<T = Record<string, unknown>>(
     toggleSort,
     setPage,
     setPageSize,
+    items,
+    total,
+    loading,
+    error,
   };
 }

@@ -19,7 +19,7 @@
       />
     </div>
 
-    <div v-if="loadingUser" class="py-10 text-center">
+    <div v-if="!user" class="py-10 text-center">
       <UIcon
         name="i-lucide-loader-2"
         class="mx-auto h-6 w-6 animate-spin text-gray-400"
@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { CreateUserPayload } from "~/types/user";
+import type { CreateUserPayload, User } from "~/types/user";
 import UserForm from "~/components/pages/users/UserForm.vue";
 
 definePageMeta({ layout: "default" });
@@ -51,40 +51,28 @@ const store = useUsersStore();
 const { setFlash } = useFlashMessage();
 
 const formRef = ref<InstanceType<typeof UserForm>>();
-const userId = computed(() => String(route.params.id));
-const loadingUser = ref(true);
-const saving = ref(false);
+const userId = route.params.id as string;
+const saving = ref<boolean>(false);
 const error = ref<string | null>(null);
-const formValues = ref<Partial<CreateUserPayload> | null>(null);
 
-async function loadUser() {
-  loadingUser.value = true;
-  error.value = null;
+const { data: user } = await useFetch<User>(`/api/users/${userId}`);
 
-  try {
-    const user = await store.fetchById(userId.value);
-    formValues.value = {
-      name: user.name,
-      email: user.email,
-      role: user.roles[0]?.id ?? "",
-    };
-  } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Não foi possível carregar o usuário.";
-    error.value = message;
-  } finally {
-    loadingUser.value = false;
-  }
-}
+const formValues = computed((): Partial<CreateUserPayload> | null => {
+  if (!user.value) return null;
+  return {
+    name: user.value.name,
+    email: user.value.email,
+    role: user.value.roles[0]?.id ?? "",
+    companies: user.value.companies?.map((c) => c.id) ?? [],
+  };
+});
 
-async function handleUpdate(payload: CreateUserPayload) {
+async function handleUpdate(payload: CreateUserPayload): Promise<void> {
   saving.value = true;
   error.value = null;
 
   try {
-    await store.update(userId.value, payload);
+    await store.update(userId, payload);
     setFlash({
       title: "Sucesso",
       description: "Usuário atualizado com sucesso!",
@@ -102,6 +90,4 @@ async function handleUpdate(payload: CreateUserPayload) {
     saving.value = false;
   }
 }
-
-onMounted(loadUser);
 </script>

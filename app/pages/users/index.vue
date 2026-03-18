@@ -2,15 +2,11 @@
   <div class="space-y-6">
     <ZampDataTable
       :columns="columns"
-      :items="users"
-      :total="total"
-      :loading="loading"
-      :error="error"
+      :state="tableState"
       :selectable="true"
       :actions="rowActions"
       storage-key="users-table"
       empty-message="Nenhum usuário encontrado."
-      @fetch="onFetch"
       @retry="onRetry"
     >
       <template #toolbar>
@@ -60,52 +56,20 @@
 <script lang="ts" setup>
 import DeleteUserModal from "~/components/pages/users/DeleteUserModal.vue";
 import { useUsersPage } from "~/composables/users/useUsersPage";
-import { useUsersService } from "~/composables/users/useUsersService";
-import type {
-  ZampDataTableColumn,
-  RowAction,
-  FetchParams,
-} from "~/types/zamp-data-table";
+import { useZampDataTable } from "~/composables/useZampDataTable";
+import type { ZampDataTableColumn, RowAction } from "~/types/zamp-data-table";
 import type { User } from "~/types/user";
 
 definePageMeta({ layout: "default" });
 
 const { consumeFlash } = useFlashMessage();
-const service = useUsersService();
 
 const { store, showDeleteModal, deleteUser, openCreate, openEdit, openDelete } =
   useUsersPage();
 
 onMounted(() => consumeFlash());
 
-// --- Table data ---
-const users = ref<User[]>([]);
-const total = ref(0);
-const loading = ref(false);
-const error = ref(false);
-
-async function onFetch(params: FetchParams) {
-  console.log("Fetch users with params:", params);
-  loading.value = true;
-  error.value = false;
-  try {
-    const data = await service.fetchPaginated(params);
-    users.value = data.content;
-    total.value = data.totalElements;
-  } catch {
-    error.value = true;
-  } finally {
-    loading.value = false;
-  }
-}
-
-function onRetry() {
-  // Re-trigger fetch via a fetchParams watcher inside the composable;
-  // emitting @retry causes the table to re-emit @fetch automatically
-  error.value = false;
-}
-
-// --- Column definitions ---
+// --- Table state with auto-fetch ---
 const columns: ZampDataTableColumn<User>[] = [
   {
     key: "name",
@@ -124,6 +88,14 @@ const columns: ZampDataTableColumn<User>[] = [
   { key: "roles", label: "Papel", type: "custom" },
   { key: "situation", label: "Status", type: "custom" },
 ];
+
+const tableState = useZampDataTable<User>(columns, {
+  fetchUrl: "/api/users",
+});
+
+function onRetry(): void {
+  tableState.setPage(tableState.page.value);
+}
 
 // --- Row actions ---
 const rowActions: RowAction<User>[] = [
