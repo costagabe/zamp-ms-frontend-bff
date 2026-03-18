@@ -9,22 +9,31 @@ export const useCompanyStore = defineStore("company", () => {
   function hydrateFromStorage() {
     if (hydrated.value) return;
 
-    currentCompany.value = storage.load();
+    const persistedId = storage.load();
+    if (persistedId) {
+      currentCompany.value = persistedId;
+    }
+
     hydrated.value = true;
   }
 
-  function setCurrentCompany(companyId: string | null) {
+  function setCurrentCompany(
+    companyId: string | null,
+    options: { persist?: boolean } = {},
+  ) {
+    const { persist = true } = options;
+
     currentCompany.value = companyId;
-    storage.save(companyId);
+    if (persist) {
+      storage.save(companyId);
+    }
   }
 
   function syncCurrentCompany(companies?: Company[] | null) {
-    hydrateFromStorage();
-
     if (!companies) return;
 
     if (!companies.length) {
-      setCurrentCompany(null);
+      setCurrentCompany(null, { persist: false });
       return;
     }
 
@@ -33,17 +42,7 @@ export const useCompanyStore = defineStore("company", () => {
     );
     if (hasCurrent) return;
 
-    const persistedId = storage.load();
-    const hasPersisted = companies.some(
-      (company) => company.id === persistedId,
-    );
-
-    if (hasPersisted) {
-      setCurrentCompany(persistedId);
-      return;
-    }
-
-    setCurrentCompany(companies[0]?.id ?? null);
+    setCurrentCompany(companies[0]?.id ?? null, { persist: false });
   }
 
   return {

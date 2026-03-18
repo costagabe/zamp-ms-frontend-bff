@@ -31,4 +31,9 @@ watch(
   },
   { immediate: true },
 );
+
+onMounted(() => {
+  companyStore.hydrateFromStorage();
+  companyStore.syncCurrentCompany(data.value);
+});
 </script>
