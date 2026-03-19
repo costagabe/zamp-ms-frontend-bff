@@ -31,6 +31,12 @@
         </UBadge>
       </template>
 
+      <template #cell-phone="{ item }">
+        <span class="text-gray-600 dark:text-gray-400">
+          {{ formatPhone(item.phone) || "-" }}
+        </span>
+      </template>
+
       <template #cell-clientTypes="{ item }">
         <div class="flex flex-wrap gap-1">
           <UBadge
@@ -80,6 +86,7 @@ const columns: ZampDataTableColumn<Client>[] = [
     label: "Telefone",
     sortable: false,
     filterable: true,
+    type: "custom",
     hideOnMobile: true,
   },
   {
@@ -138,5 +145,19 @@ function clientTypeBadgeClass(type: Client["clientTypes"][number]): string {
   }
 
   return "bg-violet-100 text-violet-700 ring-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:ring-violet-500/30";
+}
+
+function formatPhone(value?: string | null): string {
+  const digits = String(value ?? "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
+  if (!digits) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 </script>
