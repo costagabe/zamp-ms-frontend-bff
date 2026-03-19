@@ -38,6 +38,7 @@
             :key="type"
             variant="soft"
             size="xs"
+            :class="['w-24 justify-center', clientTypeBadgeClass(type)]"
           >
             {{ clientTypeLabel(type) }}
           </UBadge>
@@ -52,7 +53,6 @@ import { useClientsPage } from "~/composables/clients/useClientsPage";
 import { useZampDataTable } from "~/composables/useZampDataTable";
 import type { ZampDataTableColumn, RowAction } from "~/types/zamp-data-table";
 import type { Client } from "~/types/client";
-import CompanySelector from "~/components/global/CompanySelector.vue";
 
 definePageMeta({ layout: "default", title: "Clientes" });
 
@@ -130,5 +130,13 @@ function clientTypeLabel(type: Client["clientTypes"][number]): string {
     LESSOR: "Locador",
   };
   return map[type] ?? type;
+}
+
+function clientTypeBadgeClass(type: Client["clientTypes"][number]): string {
+  if (type === "LESSEE") {
+    return "bg-blue-100 text-blue-700 ring-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:ring-blue-500/30";
+  }
+
+  return "bg-violet-100 text-violet-700 ring-violet-200 dark:bg-violet-500/20 dark:text-violet-300 dark:ring-violet-500/30";
 }
 </script>
