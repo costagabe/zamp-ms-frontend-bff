@@ -175,12 +175,16 @@ function formatPhone(value?: string | null): string {
 }
 
 function formatDocument(cpf?: string | null, cnpj?: string | null): string {
-  const cpfDigits = String(cpf ?? "").replace(/\D/g, "").slice(0, 11);
+  const cpfDigits = String(cpf ?? "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
   if (cpfDigits.length === 11) {
     return `${cpfDigits.slice(0, 3)}.${cpfDigits.slice(3, 6)}.${cpfDigits.slice(6, 9)}-${cpfDigits.slice(9)}`;
   }
 
-  const cnpjDigits = String(cnpj ?? "").replace(/\D/g, "").slice(0, 14);
+  const cnpjDigits = String(cnpj ?? "")
+    .replace(/\D/g, "")
+    .slice(0, 14);
   if (cnpjDigits.length === 14) {
     return `${cnpjDigits.slice(0, 2)}.${cnpjDigits.slice(2, 5)}.${cnpjDigits.slice(5, 8)}/${cnpjDigits.slice(8, 12)}-${cnpjDigits.slice(12)}`;
   }
