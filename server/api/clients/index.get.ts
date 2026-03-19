@@ -11,6 +11,11 @@ export default defineEventHandler(async (event) => {
 
   for (const [key, value] of Object.entries(query)) {
     if (key.startsWith("filter_") && value) {
+      if (key === "filter_cpf" || key === "filter_cnpj") {
+        params.set("filter_cpf_cnpj", String(value).replace(/\D/g, ""));
+        continue;
+      }
+
       params.set(key, String(value));
     }
   }

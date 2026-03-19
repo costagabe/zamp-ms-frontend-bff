@@ -37,6 +37,12 @@
         </span>
       </template>
 
+      <template #cell-cpf="{ item }">
+        <span class="text-gray-600 dark:text-gray-400">
+          {{ formatDocument(item.cpf, item.cnpj) || "-" }}
+        </span>
+      </template>
+
       <template #cell-clientTypes="{ item }">
         <div class="flex flex-wrap gap-1">
           <UBadge
@@ -90,10 +96,17 @@ const columns: ZampDataTableColumn<Client>[] = [
     hideOnMobile: true,
   },
   {
+    key: "cpf",
+    label: "CPF/CNPJ",
+    sortable: false,
+    filterable: true,
+    type: "custom",
+    hideOnMobile: true,
+  },
+  {
     key: "personType",
     label: "Tipo de pessoa",
     type: "custom",
-    filterable: true,
   },
   { key: "clientTypes", label: "Tipos", type: "custom" },
 ];
@@ -159,5 +172,19 @@ function formatPhone(value?: string | null): string {
   }
 
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function formatDocument(cpf?: string | null, cnpj?: string | null): string {
+  const cpfDigits = String(cpf ?? "").replace(/\D/g, "").slice(0, 11);
+  if (cpfDigits.length === 11) {
+    return `${cpfDigits.slice(0, 3)}.${cpfDigits.slice(3, 6)}.${cpfDigits.slice(6, 9)}-${cpfDigits.slice(9)}`;
+  }
+
+  const cnpjDigits = String(cnpj ?? "").replace(/\D/g, "").slice(0, 14);
+  if (cnpjDigits.length === 14) {
+    return `${cnpjDigits.slice(0, 2)}.${cnpjDigits.slice(2, 5)}.${cnpjDigits.slice(5, 8)}/${cnpjDigits.slice(8, 12)}-${cnpjDigits.slice(12)}`;
+  }
+
+  return "";
 }
 </script>
