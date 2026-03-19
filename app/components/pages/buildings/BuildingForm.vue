@@ -90,15 +90,26 @@
                 type="number"
                 min="0"
                 step="0.01"
+                class="w-full"
               />
             </UFormField>
 
             <UFormField label="Quartos" :error="errors.bedrooms">
-              <UInput v-model.number="bedroomsModel" type="number" min="0" />
+              <UInput
+                v-model.number="bedroomsModel"
+                type="number"
+                min="0"
+                class="w-full"
+              />
             </UFormField>
 
             <UFormField label="Banheiros" :error="errors.bathrooms">
-              <UInput v-model.number="bathroomsModel" type="number" min="0" />
+              <UInput
+                v-model.number="bathroomsModel"
+                type="number"
+                min="0"
+                class="w-full"
+              />
             </UFormField>
 
             <UFormField label="Vagas" :error="errors.parkingSpaces">
@@ -106,6 +117,7 @@
                 v-model.number="parkingSpacesModel"
                 type="number"
                 min="0"
+                class="w-full"
               />
             </UFormField>
           </div>
@@ -118,6 +130,7 @@
                 min="0"
                 step="0.01"
                 prefix="R$"
+                class="w-full"
               />
             </UFormField>
 
@@ -128,6 +141,7 @@
                 min="0"
                 step="0.01"
                 prefix="R$"
+                class="w-full"
               />
             </UFormField>
 
@@ -138,6 +152,7 @@
                 min="0"
                 step="0.01"
                 prefix="R$"
+                class="w-full"
               />
             </UFormField>
 
@@ -148,6 +163,7 @@
                 min="0"
                 step="0.01"
                 prefix="R$"
+                class="w-full"
               />
             </UFormField>
           </div>
@@ -156,6 +172,7 @@
             <UTextarea
               v-model="descriptionModel"
               :rows="4"
+              class="w-full"
               placeholder="Descreva características relevantes, acabamentos e diferenciais"
             />
           </UFormField>
@@ -170,11 +187,19 @@
         </h3>
         <div class="grid gap-4 md:grid-cols-2">
           <UFormField label="CEP" required :error="addressErrors.cep">
-            <UInput v-model.trim="address.cep" placeholder="00000-000" />
+            <UInput
+              v-model.trim="address.cep"
+              placeholder="00000-000"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField label="Cidade" required :error="addressErrors.city">
-            <UInput v-model.trim="address.city" placeholder="São Paulo" />
+            <UInput
+              v-model.trim="address.city"
+              placeholder="São Paulo"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField
@@ -182,15 +207,27 @@
             required
             :error="addressErrors.neighbourhood"
           >
-            <UInput v-model.trim="address.neighbourhood" placeholder="Centro" />
+            <UInput
+              v-model.trim="address.neighbourhood"
+              placeholder="Centro"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField label="Rua" required :error="addressErrors.street">
-            <UInput v-model.trim="address.street" placeholder="Av. Paulista" />
+            <UInput
+              v-model.trim="address.street"
+              placeholder="Av. Paulista"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField label="Número" required :error="addressErrors.number">
-            <UInput v-model.trim="address.number" placeholder="123" />
+            <UInput
+              v-model.trim="address.number"
+              placeholder="123"
+              class="w-full"
+            />
           </UFormField>
 
           <UFormField label="Estado" required :error="addressErrors.state">
@@ -198,6 +235,7 @@
               v-model.trim="address.state"
               maxlength="2"
               placeholder="SP"
+              class="w-full"
             />
           </UFormField>
 
@@ -205,6 +243,7 @@
             <UInput
               v-model.trim="addressComplementModel"
               placeholder="Apto 12"
+              class="w-full"
             />
           </UFormField>
 
@@ -214,6 +253,7 @@
                 v-model.number="addressLatitudeModel"
                 type="number"
                 step="0.000001"
+                class="w-full"
               />
             </UFormField>
             <UFormField label="Longitude" :error="addressErrors.longitude">
@@ -221,6 +261,7 @@
                 v-model.number="addressLongitudeModel"
                 type="number"
                 step="0.000001"
+                class="w-full"
               />
             </UFormField>
           </div>
