@@ -20,14 +20,9 @@
       </template>
 
       <template #cell-name="{ item }">
-        <div class="flex flex-col">
-          <span class="font-medium text-gray-900 dark:text-white">
-            {{ item.name }}
-          </span>
-          <span class="text-sm text-gray-500 dark:text-gray-400">
-            {{ item.email || "—" }}
-          </span>
-        </div>
+        <span class="font-medium text-gray-900 dark:text-white">
+          {{ item.name }}
+        </span>
       </template>
 
       <template #cell-personType="{ item }">
@@ -69,10 +64,16 @@ onMounted(() => consumeFlash());
 const columns: ZampDataTableColumn<Client>[] = [
   {
     key: "name",
-    label: "Cliente",
+    label: "Nome",
     sortable: true,
     filterable: true,
     type: "custom",
+  },
+  {
+    key: "email",
+    label: "E-mail",
+    sortable: true,
+    filterable: true,
   },
   {
     key: "phone",
