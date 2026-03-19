@@ -1,13 +1,26 @@
 <template>
   <UCard>
     <template #header>
-      <div class="space-y-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          {{ title }}
-        </h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          {{ description }}
-        </p>
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div class="space-y-1">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ title }}
+          </h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ description }}
+          </p>
+        </div>
+        <UButton
+          v-if="isDevFillButtonVisible"
+          size="xs"
+          variant="outline"
+          color="neutral"
+          icon="i-lucide-wand"
+          label="Preencher automático"
+          @click="fillBuilding()"
+        />
       </div>
     </template>
 
@@ -356,6 +369,7 @@ import type { Client } from "~/types/client";
 import type { Company } from "~/types/company";
 import type { PageResponse } from "~/types/common";
 import BuildingPhotoUploader from "./BuildingPhotoUploader.vue";
+import { useFillForm } from "~/composables/useFillForm";
 
 const toast = useToast();
 
@@ -481,6 +495,8 @@ const [condominiumFee] = defineField("condominiumFee");
 const [iptuValue] = defineField("iptuValue");
 const [address] = defineField("address");
 const [photos] = defineField("photos");
+
+const { isDevFillButtonVisible, fillBuildingForm } = useFillForm();
 
 const addressErrors = computed<Record<string, string>>(() => {
   const addrErrors = errors.value?.address;
@@ -623,6 +639,14 @@ const ownerOptions = computed(() =>
 );
 
 const ownersPending = computed(() => ownersStatus.value === "pending");
+
+function fillBuilding() {
+  fillBuildingForm({
+    setFieldValue,
+    companyOptions: companyOptions.value,
+    ownerOptions: ownerOptions.value,
+  });
+}
 
 watch(
   () => props.initialValues,

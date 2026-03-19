@@ -1,13 +1,26 @@
 <template>
   <UCard>
     <template #header>
-      <div class="space-y-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          {{ title }}
-        </h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          {{ description }}
-        </p>
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div class="space-y-1">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ title }}
+          </h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ description }}
+          </p>
+        </div>
+        <UButton
+          v-if="isDevFillButtonVisible"
+          size="xs"
+          variant="outline"
+          color="neutral"
+          icon="i-lucide-wand"
+          label="Preencher automático"
+          @click="fillUser()"
+        />
       </div>
     </template>
 
@@ -76,6 +89,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import type { CreateUserPayload } from "~/types/user";
 import { useRoles } from "~/composables/roles/useRoles";
+import { useFillForm } from "~/composables/useFillForm";
 
 type UserFormValues = CreateUserPayload;
 
@@ -145,6 +159,8 @@ const companyOptions = computed(() =>
   })),
 );
 
+const { isDevFillButtonVisible, fillUserForm } = useFillForm();
+
 const schema = toTypedSchema(
   z.object({
     name: z.string().trim().min(3, "Informe pelo menos 3 caracteres"),
@@ -156,7 +172,7 @@ const schema = toTypedSchema(
   }),
 );
 
-const { handleSubmit, errors, defineField, resetForm } =
+const { handleSubmit, errors, defineField, resetForm, setFieldValue } =
   useForm<UserFormValues>({
     validationSchema: schema,
     initialValues: {
@@ -171,6 +187,14 @@ const [name] = defineField("name");
 const [email] = defineField("email");
 const [role] = defineField("role");
 const [companies] = defineField("companies");
+
+function fillUser() {
+  fillUserForm({
+    setFieldValue,
+    roleOptions: roleOptions.value,
+    companyOptions: companyOptions.value,
+  });
+}
 
 watch(
   () => props.initialValues,

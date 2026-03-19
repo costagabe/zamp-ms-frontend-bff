@@ -1,13 +1,27 @@
 <template>
   <UCard>
     <template #header>
-      <div class="space-y-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          {{ title }}
-        </h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          {{ description }}
-        </p>
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div class="space-y-1">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ title }}
+          </h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ description }}
+          </p>
+        </div>
+        <div v-if="isDevFillButtonVisible" class="flex gap-2">
+          <AppButton
+            type="button"
+            variant="secondary"
+            size="xs"
+            @click="fillCompany"
+          >
+            Preencher automático
+          </AppButton>
+        </div>
       </div>
     </template>
 
@@ -55,6 +69,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { vMaska } from "maska/vue";
 import type { CreateCompanyPayload } from "~/types/company";
+import { useFillForm } from "~/composables/useFillForm";
 
 type CompanyFormValues = CreateCompanyPayload;
 
@@ -126,7 +141,9 @@ const schema = toTypedSchema(
   }),
 );
 
-const { handleSubmit, errors, defineField, resetForm } =
+const { isDevFillButtonVisible, fillCompanyForm } = useFillForm();
+
+const { handleSubmit, errors, defineField, resetForm, setFieldValue } =
   useForm<CompanyFormValues>({
     validationSchema: schema,
     initialValues: {
@@ -137,6 +154,10 @@ const { handleSubmit, errors, defineField, resetForm } =
 
 const [name] = defineField("name");
 const [cnpj] = defineField("cnpj");
+
+function fillCompany() {
+  fillCompanyForm({ setFieldValue });
+}
 
 watch(
   () => props.initialValues,

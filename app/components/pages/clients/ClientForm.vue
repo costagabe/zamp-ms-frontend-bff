@@ -1,13 +1,27 @@
 <template>
   <UCard>
     <template #header>
-      <div class="space-y-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          {{ title }}
-        </h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          {{ description }}
-        </p>
+      <div
+        class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div class="space-y-1">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ title }}
+          </h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ description }}
+          </p>
+        </div>
+        <div v-if="isDevFillButtonVisible" class="flex gap-2">
+          <AppButton
+            type="button"
+            variant="secondary"
+            size="xs"
+            @click="fillClient"
+          >
+            Preencher automático
+          </AppButton>
+        </div>
       </div>
     </template>
 
@@ -262,6 +276,7 @@ import type {
   CreateClientPayload,
   PersonType,
 } from "~/types/client";
+import { useFillForm } from "~/composables/useFillForm";
 
 const PERSON_TYPE_OPTIONS = [
   { label: "Pessoa física", value: "PF" },
@@ -533,7 +548,7 @@ const schema = toTypedSchema(
     }),
 );
 
-const { handleSubmit, errors, defineField, resetForm } = useForm<
+const { handleSubmit, errors, defineField, resetForm, setFieldValue } = useForm<
   ClientFormValues & { address?: ClientAddress }
 >({
   validationSchema: schema,
@@ -555,6 +570,7 @@ const { handleSubmit, errors, defineField, resetForm } = useForm<
     address: normalizeAddressForForm(props.initialValues?.address),
   },
 });
+const { isDevFillButtonVisible, fillClientForm } = useFillForm();
 
 const [companyId] = defineField("companyId");
 const [name] = defineField("name");
@@ -573,6 +589,28 @@ const [clientTypes] = defineField("clientTypes");
 const addressModel = ref<ClientAddress>(
   normalizeAddressForForm(props.initialValues?.address),
 );
+
+function fillClient() {
+  const result = fillClientForm({
+    setFieldValue,
+    companyOptions: companyOptions.value,
+    personTypeOptions,
+    clientTypeOptions,
+    stateOptions: stateOptions.value,
+    cityOptions: (cities.value ?? []).map((c) => ({
+      label: c.nome,
+      value: c.nome,
+    })),
+    addressTypeOptions,
+  });
+
+  if (result?.address) {
+    addressModel.value = {
+      ...addressModel.value,
+      ...result.address,
+    } as ClientAddress;
+  }
+}
 
 const addressCep = computed({
   get: () => addressModel.value.cep ?? "",
