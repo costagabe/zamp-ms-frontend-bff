@@ -9,48 +9,23 @@
       @retry="onRetry"
     >
       <template #toolbar>
-        <div class="flex flex-wrap items-center gap-3">
-          <UButton
-            icon="i-lucide-plus"
-            label="Novo imóvel"
-            @click="openCreate"
-          />
-
-          <USelect
-            v-model="tableState.pendingFilters.status"
-            :options="statusFilters"
-            value-attribute="value"
-            option-attribute="label"
-            placeholder="Status"
-            class="w-44"
-            @change="commitFilters('status')"
-          />
-
-          <USelect
-            v-model="tableState.pendingFilters.propertyType"
-            :options="propertyTypeFilters"
-            value-attribute="value"
-            option-attribute="label"
-            placeholder="Tipo"
-            class="w-44"
-            @change="commitFilters('propertyType')"
-          />
-
-          <UInput
-            v-model="tableState.pendingFilters.city"
-            placeholder="Cidade"
-            icon="i-lucide-search"
-            class="w-56"
-            @input="commitFilters('city')"
-          />
-
-          <UButton
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide-eraser"
-            label="Limpar filtros"
-            @click="clearFilters()"
-          />
+        <div class="flex grow gap-3 justify-between">
+          <div class="flex">
+            <UButton
+              icon="i-lucide-plus"
+              label="Novo imóvel"
+              @click="openCreate"
+            />
+          </div>
+          <div class="flex">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              icon="i-lucide-eraser"
+              label="Limpar filtros"
+              @click="clearFilters()"
+            />
+          </div>
         </div>
       </template>
 
@@ -138,6 +113,14 @@ const columns: ZampDataTableColumn<Building>[] = [
 const tableState = useZampDataTable<Building>(columns, {
   fetchUrl: "/api/buildings",
 });
+
+type BuildingFilters = {
+  status?: string;
+  propertyType?: string;
+  city?: string;
+};
+
+const pendingFilters = tableState.pendingFilters as Ref<BuildingFilters>;
 
 const rowActions: RowAction<Building>[] = [
   {
@@ -243,9 +226,9 @@ function propertyTypeLabel(type: Building["propertyType"]): string {
   }
 }
 
-function commitFilters(key: string) {
-  const value = tableState.pendingFilters[key] ?? "";
-  tableState.setFilter(key, value as string);
+function commitFilters(key: keyof BuildingFilters) {
+  const value = pendingFilters.value[key] ?? "";
+  tableState.setFilter(key as string, value as string);
 }
 
 function clearFilters() {

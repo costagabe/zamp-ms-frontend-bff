@@ -72,7 +72,7 @@
           </UFormField>
 
           <UFormField label="Data de captação" :error="errors.capitationDate">
-            <UInput v-model="capitationDate" type="date" class="w-full" />
+            <UInput v-model="capitationDateModel" type="date" class="w-full" />
           </UFormField>
         </div>
 
@@ -85,26 +85,35 @@
 
           <div class="grid gap-4 md:grid-cols-2">
             <UFormField label="Área (m²)" :error="errors.area">
-              <UInput v-model.number="area" type="number" min="0" step="0.01" />
+              <UInput
+                v-model.number="areaModel"
+                type="number"
+                min="0"
+                step="0.01"
+              />
             </UFormField>
 
             <UFormField label="Quartos" :error="errors.bedrooms">
-              <UInput v-model.number="bedrooms" type="number" min="0" />
+              <UInput v-model.number="bedroomsModel" type="number" min="0" />
             </UFormField>
 
             <UFormField label="Banheiros" :error="errors.bathrooms">
-              <UInput v-model.number="bathrooms" type="number" min="0" />
+              <UInput v-model.number="bathroomsModel" type="number" min="0" />
             </UFormField>
 
             <UFormField label="Vagas" :error="errors.parkingSpaces">
-              <UInput v-model.number="parkingSpaces" type="number" min="0" />
+              <UInput
+                v-model.number="parkingSpacesModel"
+                type="number"
+                min="0"
+              />
             </UFormField>
           </div>
 
           <div class="grid gap-4 md:grid-cols-2">
             <UFormField label="Valor de aluguel" :error="errors.rentValue">
               <UInput
-                v-model.number="rentValue"
+                v-model.number="rentValueModel"
                 type="number"
                 min="0"
                 step="0.01"
@@ -114,7 +123,7 @@
 
             <UFormField label="Valor de venda" :error="errors.saleValue">
               <UInput
-                v-model.number="saleValue"
+                v-model.number="saleValueModel"
                 type="number"
                 min="0"
                 step="0.01"
@@ -124,7 +133,7 @@
 
             <UFormField label="Condomínio" :error="errors.condominiumFee">
               <UInput
-                v-model.number="condominiumFee"
+                v-model.number="condominiumFeeModel"
                 type="number"
                 min="0"
                 step="0.01"
@@ -134,7 +143,7 @@
 
             <UFormField label="IPTU" :error="errors.iptuValue">
               <UInput
-                v-model.number="iptuValue"
+                v-model.number="iptuValueModel"
                 type="number"
                 min="0"
                 step="0.01"
@@ -145,7 +154,7 @@
 
           <UFormField label="Descrição" :error="errors.description">
             <UTextarea
-              v-model="description"
+              v-model="descriptionModel"
               :rows="4"
               placeholder="Descreva características relevantes, acabamentos e diferenciais"
             />
@@ -160,31 +169,31 @@
           Endereço
         </h3>
         <div class="grid gap-4 md:grid-cols-2">
-          <UFormField label="CEP" required :error="errors.address?.cep">
+          <UFormField label="CEP" required :error="addressErrors.cep">
             <UInput v-model.trim="address.cep" placeholder="00000-000" />
           </UFormField>
 
-          <UFormField label="Cidade" required :error="errors.address?.city">
+          <UFormField label="Cidade" required :error="addressErrors.city">
             <UInput v-model.trim="address.city" placeholder="São Paulo" />
           </UFormField>
 
           <UFormField
             label="Bairro"
             required
-            :error="errors.address?.neighbourhood"
+            :error="addressErrors.neighbourhood"
           >
             <UInput v-model.trim="address.neighbourhood" placeholder="Centro" />
           </UFormField>
 
-          <UFormField label="Rua" required :error="errors.address?.street">
+          <UFormField label="Rua" required :error="addressErrors.street">
             <UInput v-model.trim="address.street" placeholder="Av. Paulista" />
           </UFormField>
 
-          <UFormField label="Número" required :error="errors.address?.number">
+          <UFormField label="Número" required :error="addressErrors.number">
             <UInput v-model.trim="address.number" placeholder="123" />
           </UFormField>
 
-          <UFormField label="Estado" required :error="errors.address?.state">
+          <UFormField label="Estado" required :error="addressErrors.state">
             <UInput
               v-model.trim="address.state"
               maxlength="2"
@@ -192,21 +201,24 @@
             />
           </UFormField>
 
-          <UFormField label="Complemento" :error="errors.address?.complement">
-            <UInput v-model.trim="address.complement" placeholder="Apto 12" />
+          <UFormField label="Complemento" :error="addressErrors.complement">
+            <UInput
+              v-model.trim="addressComplementModel"
+              placeholder="Apto 12"
+            />
           </UFormField>
 
           <div class="grid grid-cols-2 gap-3">
-            <UFormField label="Latitude" :error="errors.address?.latitude">
+            <UFormField label="Latitude" :error="addressErrors.latitude">
               <UInput
-                v-model.number="address.latitude"
+                v-model.number="addressLatitudeModel"
                 type="number"
                 step="0.000001"
               />
             </UFormField>
-            <UFormField label="Longitude" :error="errors.address?.longitude">
+            <UFormField label="Longitude" :error="addressErrors.longitude">
               <UInput
-                v-model.number="address.longitude"
+                v-model.number="addressLongitudeModel"
                 type="number"
                 step="0.000001"
               />
@@ -232,6 +244,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
@@ -363,13 +376,86 @@ const [condominiumFee] = defineField("condominiumFee");
 const [iptuValue] = defineField("iptuValue");
 const [address] = defineField("address");
 
+const addressErrors = computed<Record<string, string>>(() => {
+  const addrErrors = errors.value?.address;
+  return addrErrors && typeof addrErrors === "object"
+    ? (addrErrors as Record<string, string>)
+    : {};
+});
+
+const capitationDateModel = computed<string | undefined>({
+  get: () => capitationDate.value ?? undefined,
+  set: (value) => setFieldValue("capitationDate", value ?? null),
+});
+
+const areaModel = computed<number | undefined>({
+  get: () => area.value ?? undefined,
+  set: (value) => setFieldValue("area", value ?? null),
+});
+
+const bedroomsModel = computed<number | undefined>({
+  get: () => bedrooms.value ?? undefined,
+  set: (value) => setFieldValue("bedrooms", value ?? null),
+});
+
+const bathroomsModel = computed<number | undefined>({
+  get: () => bathrooms.value ?? undefined,
+  set: (value) => setFieldValue("bathrooms", value ?? null),
+});
+
+const parkingSpacesModel = computed<number | undefined>({
+  get: () => parkingSpaces.value ?? undefined,
+  set: (value) => setFieldValue("parkingSpaces", value ?? null),
+});
+
+const descriptionModel = computed<string | undefined>({
+  get: () => description.value ?? undefined,
+  set: (value) => setFieldValue("description", value ?? null),
+});
+
+const rentValueModel = computed<number | undefined>({
+  get: () => rentValue.value ?? undefined,
+  set: (value) => setFieldValue("rentValue", value ?? null),
+});
+
+const saleValueModel = computed<number | undefined>({
+  get: () => saleValue.value ?? undefined,
+  set: (value) => setFieldValue("saleValue", value ?? null),
+});
+
+const condominiumFeeModel = computed<number | undefined>({
+  get: () => condominiumFee.value ?? undefined,
+  set: (value) => setFieldValue("condominiumFee", value ?? null),
+});
+
+const iptuValueModel = computed<number | undefined>({
+  get: () => iptuValue.value ?? undefined,
+  set: (value) => setFieldValue("iptuValue", value ?? null),
+});
+
+const addressComplementModel = computed<string | undefined>({
+  get: () => address.value?.complement ?? undefined,
+  set: (value) => setFieldValue("address.complement", value ?? null),
+});
+
+const addressLatitudeModel = computed<number | undefined>({
+  get: () => address.value?.latitude ?? undefined,
+  set: (value) => setFieldValue("address.latitude", value ?? null),
+});
+
+const addressLongitudeModel = computed<number | undefined>({
+  get: () => address.value?.longitude ?? undefined,
+  set: (value) => setFieldValue("address.longitude", value ?? null),
+});
+
 const { data: companiesData, status: companiesStatus } = useAsyncData(
   "companies-for-buildings",
   async () => {
-    const result = await $fetch("/api/companies", {
+    const result = await $fetch<{ content?: any[] } | any[]>("/api/companies", {
       query: { page: 1, pageSize: 100 },
     });
-    return result?.content ?? result ?? [];
+    if (Array.isArray(result)) return result;
+    return result?.content ?? [];
   },
 );
 
@@ -385,10 +471,11 @@ const companiesPending = computed(() => companiesStatus.value === "pending");
 const { data: ownersData, status: ownersStatus } = useAsyncData(
   "clients-for-buildings",
   async () => {
-    const result = await $fetch("/api/clients", {
+    const result = await $fetch<{ content?: any[] } | any[]>("/api/clients", {
       query: { page: 1, pageSize: 200 },
     });
-    return result?.content ?? result ?? [];
+    if (Array.isArray(result)) return result;
+    return result?.content ?? [];
   },
 );
 

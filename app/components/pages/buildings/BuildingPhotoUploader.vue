@@ -29,7 +29,7 @@
             ref="imageRef"
             :src="selectedImage"
             alt="Selecionada"
-            class="max-h-[480px] w-full object-contain"
+            class="max-h-120 w-full object-contain"
           />
         </div>
       </div>
@@ -68,6 +68,7 @@
 
 <script lang="ts" setup>
 import { nextTick, ref, shallowRef } from "vue";
+// @ts-expect-error module types shimmed in types/shims-cropperjs.d.ts
 import Cropper from "cropperjs";
 import "cropperjs/dist/cropper.css";
 import { nanoid } from "nanoid";
@@ -150,7 +151,7 @@ async function cropAndUpload() {
     });
 
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob((b) => resolve(b), "image/jpeg", 0.82),
+      canvas.toBlob((b: Blob | null) => resolve(b), "image/jpeg", 0.82),
     );
     if (!blob) throw new Error("Não foi possível gerar a imagem.");
 

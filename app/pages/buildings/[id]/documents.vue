@@ -100,7 +100,9 @@ async function loadDocuments() {
   pending.value = true;
   try {
     const result = await service.fetchDocuments(id);
-    documents.value = Array.isArray(result) ? result : (result?.content ?? []);
+    documents.value = Array.isArray(result)
+      ? result
+      : ((result as { content?: any[] })?.content ?? []);
   } catch (err) {
     toast.add({
       title: "Erro",

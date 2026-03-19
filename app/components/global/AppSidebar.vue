@@ -14,7 +14,7 @@
     >
       <NuxtLink to="/home" class="flex items-center gap-2 overflow-hidden">
         <div
-          class="flex-shrink-0 w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center"
+          class="shrink-0 w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center"
         >
           <UIcon name="i-lucide-building-2" class="w-5 h-5 text-white" />
         </div>
@@ -61,7 +61,7 @@
         ]"
         @click="closeMobileOnNav"
       >
-        <UIcon :name="item.icon" class="w-5 h-5 flex-shrink-0" />
+        <UIcon :name="item.icon" class="w-5 h-5 shrink-0" />
         <span v-show="!collapsed" class="whitespace-nowrap">{{
           item.label
         }}</span>
@@ -78,7 +78,7 @@
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
         @click="closeMobileOnNav"
       >
-        <UIcon name="i-lucide-settings" class="w-5 h-5 flex-shrink-0" />
+        <UIcon name="i-lucide-settings" class="w-5 h-5 shrink-0" />
         <span v-show="!collapsed" class="whitespace-nowrap">Configurações</span>
       </NuxtLink>
     </div>
