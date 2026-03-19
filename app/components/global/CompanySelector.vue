@@ -14,6 +14,7 @@ import type { Company } from "~/types/company";
 
 const { data } = await useFetch<Company[]>("/api/companies/my");
 const companyStore = useCompanyStore();
+companyStore.hydrateFromStorage();
 
 const items = computed(() => data.value ?? []);
 
@@ -31,9 +32,4 @@ watch(
   },
   { immediate: true },
 );
-
-onMounted(() => {
-  companyStore.hydrateFromStorage();
-  companyStore.syncCurrentCompany(data.value);
-});
 </script>

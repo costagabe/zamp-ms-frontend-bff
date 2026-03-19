@@ -21,28 +21,47 @@
           </h3>
 
           <UFormField label="Empresa" required :error="errors.companyId">
-            <USelectMenu
-              v-model="companyId"
-              :items="companyOptions"
-              value-key="value"
-              label-key="label"
-              placeholder="Selecione a empresa"
-              class="w-full"
-              :loading="companiesPending"
-            />
+            <ClientOnly>
+              <USelectMenu
+                v-model="companyId"
+                :items="companyOptions"
+                value-key="value"
+                label-key="label"
+                placeholder="Selecione a empresa"
+                class="w-full"
+                :loading="companiesPending"
+                :disabled="true"
+              />
+              <template #fallback>
+                <UInput
+                  class="w-full"
+                  placeholder="Selecione a empresa"
+                  disabled
+                />
+              </template>
+            </ClientOnly>
           </UFormField>
 
           <UFormField label="Proprietário" required :error="errors.ownerId">
-            <USelectMenu
-              v-model="ownerId"
-              :items="ownerOptions"
-              value-key="value"
-              label-key="label"
-              placeholder="Selecione o proprietário"
-              class="w-full"
-              :loading="ownersPending"
-              searchable
-            />
+            <ClientOnly>
+              <USelectMenu
+                v-model="ownerId"
+                :items="ownerOptions"
+                value-key="value"
+                label-key="label"
+                placeholder="Selecione o proprietário"
+                class="w-full"
+                :loading="ownersPending"
+                searchable
+              />
+              <template #fallback>
+                <UInput
+                  class="w-full"
+                  placeholder="Selecione o proprietário"
+                  disabled
+                />
+              </template>
+            </ClientOnly>
           </UFormField>
 
           <UFormField label="Status" required :error="errors.status">
@@ -268,6 +287,43 @@
         </div>
       </div>
 
+      <div class="space-y-4">
+        <h3
+          class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+        >
+          Imagens
+        </h3>
+
+        <BuildingPhotoUploader v-model="photoIds" bucket="buildings-images" />
+
+        <div
+          v-if="photoIds.length"
+          class="grid gap-4 md:grid-cols-3 lg:grid-cols-4"
+        >
+          <div
+            v-for="(photoId, index) in photoIds"
+            :key="photoId || index"
+            class="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+          >
+            <div
+              class="flex items-center justify-between gap-2 px-3 py-3 text-xs text-gray-600 dark:text-gray-200"
+            >
+              <span class="truncate" :title="photoId">{{ photoId }}</span>
+            </div>
+            <div class="flex justify-end gap-2 px-3 pb-3">
+              <UButton
+                size="xs"
+                color="error"
+                variant="outline"
+                icon="i-lucide-trash"
+                label="Remover"
+                @click="removePhoto(index)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div
         class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-700"
       >
@@ -289,12 +345,17 @@ import { computed } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
+
 import type {
   BuildingStatus,
   PropertyType,
   CreateBuildingPayload,
   BuildingAddress,
 } from "~/types/building";
+import type { Client } from "~/types/client";
+import type { Company } from "~/types/company";
+import type { PageResponse } from "~/types/common";
+import BuildingPhotoUploader from "./BuildingPhotoUploader.vue";
 
 const toast = useToast();
 
@@ -321,6 +382,9 @@ const emit = defineEmits<{
   submit: [payload: CreateBuildingPayload];
   cancel: [];
 }>();
+
+const companyStore = useCompanyStore();
+companyStore.hydrateFromStorage();
 
 const statusOptions = [
   { label: "Disponível", value: "AVAILABLE" satisfies BuildingStatus },
@@ -416,6 +480,7 @@ const [saleValue] = defineField("saleValue");
 const [condominiumFee] = defineField("condominiumFee");
 const [iptuValue] = defineField("iptuValue");
 const [address] = defineField("address");
+const [photos] = defineField("photos");
 
 const addressErrors = computed<Record<string, string>>(() => {
   const addrErrors = errors.value?.address;
@@ -489,39 +554,69 @@ const addressLongitudeModel = computed<number | undefined>({
   set: (value) => setFieldValue("address.longitude", value ?? null),
 });
 
-const { data: companiesData, status: companiesStatus } = useAsyncData(
-  "companies-for-buildings",
-  async () => {
-    const result = await $fetch<{ content?: any[] } | any[]>("/api/companies", {
-      query: { page: 1, pageSize: 100 },
-    });
-    if (Array.isArray(result)) return result;
-    return result?.content ?? [];
-  },
-);
+const photoIds = computed<string[]>({
+  get: () =>
+    ((photos.value as unknown as string[] | null) ?? []).filter(Boolean),
+  set: (value) => setFieldValue("photos", value as unknown as any[]),
+});
+
+function removePhoto(index: number) {
+  const next = [...photoIds.value];
+  next.splice(index, 1);
+  photoIds.value = next;
+}
+
+const { data: companiesData, status: companiesStatus } = useFetch<
+  PageResponse<Company>
+>("/api/companies", {
+  key: "companies-for-buildings",
+  query: { page: 1, pageSize: 100 },
+  server: false,
+  lazy: true,
+});
 
 const companyOptions = computed(() =>
-  (companiesData.value ?? []).map((company: any) => ({
-    label: company.name,
-    value: company.id,
-  })),
+  (companiesData.value?.content ?? [])
+    .map((company) => ({
+      label: company.name,
+      value: company.id,
+    }))
+    .filter(
+      (company) =>
+        !companyStore.currentCompany ||
+        company.value === companyStore.currentCompany,
+    ),
 );
 
 const companiesPending = computed(() => companiesStatus.value === "pending");
 
-const { data: ownersData, status: ownersStatus } = useAsyncData(
-  "clients-for-buildings",
-  async () => {
-    const result = await $fetch<{ content?: any[] } | any[]>("/api/clients", {
-      query: { page: 1, pageSize: 200 },
-    });
-    if (Array.isArray(result)) return result;
-    return result?.content ?? [];
+watch(
+  () => companiesData.value?.content,
+  (companies) => {
+    companyStore.syncCurrentCompany(companies);
   },
+  { immediate: true },
 );
 
+watch(
+  () => companyStore.currentCompany,
+  (selectedCompany) => {
+    setFieldValue("companyId", selectedCompany ?? "");
+  },
+  { immediate: true },
+);
+
+const { data: ownersData, status: ownersStatus } = useFetch<
+  PageResponse<Client>
+>("/api/clients", {
+  key: "clients-for-buildings",
+  query: { page: 1, pageSize: 200 },
+  server: false,
+  lazy: true,
+});
+
 const ownerOptions = computed(() =>
-  (ownersData.value ?? []).map((client: any) => ({
+  (ownersData.value?.content ?? []).map((client) => ({
     label: client.name,
     value: client.id,
   })),
@@ -534,7 +629,7 @@ watch(
   (values) => {
     resetForm({
       values: {
-        companyId: values?.companyId ?? "",
+        companyId: companyStore.currentCompany ?? "",
         ownerId: values?.ownerId ?? "",
         capitationDate: values?.capitationDate ?? null,
         status: values?.status ?? "AVAILABLE",

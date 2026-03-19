@@ -123,7 +123,13 @@ async function loadPhotos() {
   }
 }
 
-function onUploaded(photo: BuildingPhoto) {
+function onUploaded(photo: string | BuildingPhoto) {
+  if (typeof photo === "string") {
+    // Fallback for legacy uploader payload.
+    void loadPhotos();
+    return;
+  }
+
   photos.value = [photo, ...photos.value];
 }
 
