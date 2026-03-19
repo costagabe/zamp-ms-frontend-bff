@@ -19,6 +19,8 @@
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/nuxt": "14.2.1",
     "better-sqlite3": "^12.6.2",
+    "cropperjs": "^2.0.0-rc.0",
+    "nanoid": "^5.1.0",
     "maska": "^3.2.0",
     "nuxt": "^4.3.1",
     "vuetify-nuxt-module": "1.0.0-alpha.3"

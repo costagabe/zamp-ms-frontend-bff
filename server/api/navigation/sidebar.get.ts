@@ -9,7 +9,12 @@ interface SidebarItem {
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { label: "Dashboard", icon: "i-lucide-layout-dashboard", to: "/" },
-  { label: "Imóveis", icon: "i-lucide-building-2", to: "/buildings" },
+  {
+    label: "Imóveis",
+    icon: "i-lucide-building-2",
+    to: "/buildings",
+    roles: ["ADMIN", "EMPLOYEE"],
+  },
   { label: "Clientes", icon: "i-lucide-users", to: "/clients" },
   {
     label: "Usuários",
